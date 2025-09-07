@@ -126,3 +126,82 @@ def histograma_churn(df,
     
     plt.show()
     return fig
+
+
+def bar_churn(df: pd.DataFrame,
+              xcol: str,
+              ycol: str='count',
+              hue_col: str='Churn',
+              figsize: Tuple=(6,4),
+              xlabel: str=None,
+              ylabel: str='Customer Count',
+              path: Path='.'):
+    
+    """
+    Generates and saves a grouped bar chart to compare a categorical feature classes ('xcol')
+    diferentiated by Churn, using frequency or another metric as height.
+    --------------------------------------------------------------------------------------------------
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing the data to plot. Must inlcude 'Churn' feature and the categorical column <'xcol'>
+    xcol : str
+        Categorical column to represent in X axis.
+    ycol : str, opcional
+        Numerical column for Y axis. (By default: 'count').
+    hue_col : str, optional
+        Column used to group by. (By default: 'Churn').
+    figsize : Tuple, optional
+        Fig size in inches (width, height). (By default: (6, 4))
+    xlabel : str, optional
+        X axis label. If not specified, 'xcol' name will be used.
+    ylabel : str, opcional
+        Y axis label. (By default: 'Customer Count').
+    --------------------------------------------------------------------------------------------------
+    Saving
+    --------
+    Saves chart as PNG image in path './<path>/' under the name 'bar_Churn_<xcol>.png'
+    --------------------------------------------------------------------------------------------------
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object from Matplotlib with the generated bar plot.
+    """
+    
+    churn_colors = ['#4682b4', '#e9611d']
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    if title_translate is None:
+        title_translate = xcol
+        
+    ax = sns.barplot(data=df, x=xcol, y=ycol, hue=hue_col, palette=churn_colors)
+    ax.set_title(f'Churn by {xcol}', fontsize=18, pad=20)
+    if xlabel is None:
+        ax.set_xlabel('')
+    else:
+        ax.set_xlabel(xcol, fontsize=15)
+        
+    ax.set_ylabel(ylabel, fontsize=15)
+    ax.tick_params(axis='y', labelsize=10)
+    ax.tick_params(axis='x', labelsize=12)
+    for bar in ax.patches:
+        height = bar.get_height()
+        if height == 0:
+            continue
+        else:
+            ax.text(bar.get_x() + bar.get_width() / 2, 
+                    height + 30,
+                    f'{height:.0f}',
+                    ha='center')
+            
+    sns.despine()
+    #plt.tight_layout()
+
+    fig.savefig(path/f'bar_Churn_{xcol}.png',
+                transparent=False,
+                dpi=300,
+                bbox_inches='tight')
+
+    plt.show()
+    return fig
