@@ -243,3 +243,89 @@ def pivot_and_churn_rate(df: pd.DataFrame,
     df['Churn Rate (%)'] = round(df['Churn'] / (df['Churn'] + df['No Churn']) * 100, 2)
     df = df.sort_values(by='Churn Rate (%)', ascending=False)
     return df
+
+
+# CHURN RATE TABLE 
+
+def plot_churn_rate_table(df: pd.DataFrame,
+                          col: str,
+                          rate_col: str='Churn Rate (%)',
+                          figsize: Tuple=(6,3),
+                          save_as: str=None,
+                          path: Path='.'):
+
+    """
+    Generates a visual table (Matplotlib) to show Churn Rate by categorical classes.
+
+    The function constructs a graphic table based in a categorical column ('col') and its respective
+    Churn Rate, highlighting in red the class with the highest rate.
+    Then the table is automatically exported as a PNG image.
+    --------------------------------------------------------------------------------------------------
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing 'col' and a rate column. (By default: 'Churn Rate (%)').
+    col : str
+        Categorical feature name from which classes will be shown in the table.
+    rate_col : str, optional
+        Column name containing Churn Rate values. (By default: 'Churn Rate (%)').
+    figsize : Tuple, optional
+        Figure size in inches (width, height). (By default: (6, 3))
+    save_as: str, optional
+        Name to save the figure. (By default: 'col')
+    --------------------------------------------------------------------------------------------------
+    Retorna
+    -------
+    fig : matplotlib.figure.Figure
+        Objeto Figure de Matplotlib con la tabla renderizada.
+    """
+
+    if rate_col != 'Churn Rate (%)':
+        label = rate_col
+    else:
+        label = 'Churn Rate (%)'
+    
+    data = df[[col, rate_col]].values.tolist()
+
+    if save_as is None:
+        save_as = col
+
+    # Create table to export as an image
+    fig, ax = plt.subplots(figsize=figsize)
+    # Eliminate axes
+    ax.axis('off')
+    
+    color_order= []
+    max_rate = max(data, key=lambda x: x[1])
+    idx_max = data.index(max_rate)
+    
+    for i in range(len(df)):
+        if i == idx_max:
+            color_order.append('tomato')
+        else:
+            color_order.append('silver')
+            
+    cell_colors = [[color, color] for color in color_order]
+
+    tabla = ax.table(cellText=data,
+                     colLabels=[col, label],
+                     cellLoc='center',
+                     loc='center',
+                     colColours=['silver' for i in range(len(data[0]))],
+                     cellColours=cell_colors)
+    
+    plt.title(f'Churn Rate by {col}', fontsize=18)
+    
+    # Scale table for better readability
+    tabla.scale(1, 2)
+    
+    plt.tight_layout()
+    
+    fig.savefig(path/f'churn_rate_{save_as}.png',
+                transparent=False,
+                dpi=300,
+                bbox_inches='tight')
+    
+    
+    plt.show()
+    return fig
