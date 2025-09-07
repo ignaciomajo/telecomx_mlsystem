@@ -127,6 +127,7 @@ def histograma_churn(df,
     plt.show()
     return fig
 
+# BAR CHART 
 
 def bar_churn(df: pd.DataFrame,
               xcol: str,
@@ -205,3 +206,40 @@ def bar_churn(df: pd.DataFrame,
 
     plt.show()
     return fig
+
+
+# PIVOT TABLE
+
+def pivot_and_churn_rate(df: pd.DataFrame, 
+                          index_col: str):
+    """
+    Generates a summary table with churn rate by categorical feature classes.
+
+    Transforms a DataFrame with columns 'Churn' and 'count' in a pivoted table where each row
+    represents a category from 'index_col', with separated columns for Churn label.
+    Calculates Churn rate and orders the results in descending order.
+    --------------------------------------------------------------------------------------------------
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with columns 'Churn' and 'count', and containing the categorical feature indicated in
+        'index_col'
+    index_col : str
+        Categorical column name used as index.
+    --------------------------------------------------------------------------------------------------
+    Returns
+    -------
+    df : pd.DataFrame
+        DataFrame with columns:
+        - 'index_col': evaluated feature
+        - 'No Churn': customer count that have not cancel their services
+        - 'Churn': customer count that has cancel their services
+        - 'Churn Rate (%)': churn rate for each class 
+    """
+    
+    df = df.pivot(index=index_col, columns='Churn', values='count')
+    df.columns = ['No Churn', 'Churn']
+    df = df.reset_index()
+    df['Churn Rate (%)'] = round(df['Churn'] / (df['Churn'] + df['No Churn']) * 100, 2)
+    df = df.sort_values(by='Churn Rate (%)', ascending=False)
+    return df
