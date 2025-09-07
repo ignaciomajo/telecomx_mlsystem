@@ -329,3 +329,72 @@ def plot_churn_rate_table(df: pd.DataFrame,
     
     plt.show()
     return fig
+
+
+# HORIZONTAL STACKED BAR
+
+def barh_stack_churn(df: pd.DataFrame,
+                     ycol: str,
+                     figsize: Tuple=(8,3),
+                     path: Path='.'):
+
+    """
+    Generates a horizontal stacked bar chart to show customer distribution by a categorical feature
+    and Churn condition.
+    (Use pivot_and_churn_rate on the DataFrame to use)
+
+    This chart plots the composition of each class from 'ycol' by Churn condition.
+    The figure is automatically saved as a PNG image.
+    --------------------------------------------------------------------------------------------------
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame must contain columns 'No Churn', 'Churn' and the categorical column '<ycol>'.
+    ycol : str
+        Categorical column name used in Y axis.
+    figsize : Tuple, optional
+        Figure size in inches (width, height). (By default: (8, 3))
+    --------------------------------------------------------------------------------------------------
+    Returns
+    -------
+    fig: matplotlib.figure.Figure
+        Objeto Figure de Matplotlib el gráfico generado.
+    """
+
+    churn_colors = ['#4682b4', '#e9611d']
+        
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    ax.set_frame_on(False)
+    
+    # Horizontal bars
+    ax.barh(df[ycol], df['No Churn'], label='No Churn', color=churn_colors[0])
+    ax.barh(df[ycol], df['Churn'], left=df['No Churn'], label='Churn', color=churn_colors[1])
+    
+    for idx, row in df.iterrows():
+        tipo = row[ycol]
+        
+        # "No Churn" label
+        nochurn = row['No Churn'] / 2
+        ax.text(nochurn, tipo, str(row['No Churn']), va='center', ha='center', color='black', fontsize=9)
+        
+        # "Churn" label
+        churn = row['No Churn'] + row['Churn'] / 2
+        ax.text(churn, tipo, str(row['Churn']), va='center', ha='center', color='black', fontsize=9)
+    
+    # Title and labels
+    ax.set_title(f'Churn by {ycol}', fontsize=18, loc='left', pad=20)
+    ax.xaxis.set_visible(False)
+    ax.tick_params(size=0, labelsize=10)
+    ax.legend()
+    sns.despine()
+    
+    plt.tight_layout()
+    
+    fig.savefig(path/f'barhstk_Churn_{ycol}.png',
+                transparent=False,
+                dpi=300,
+                bbox_inches='tight')
+    
+    plt.show()
+    return fig
