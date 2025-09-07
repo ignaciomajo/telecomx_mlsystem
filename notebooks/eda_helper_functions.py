@@ -56,3 +56,73 @@ def boxplot_churn(df: pd.DataFrame,
                 bbox_inches='tight')
     plt.show()
     return fig
+
+# HISTOGRAM
+
+def histograma_churn(df, 
+                     xcol, 
+                     xlabel: str=None,
+                     path: Path='.'):
+    """
+    Generates and saves a double histogram with numerical variable distribution ('xcol') diferentiated by
+    churn condition ('Yes' and 'No')
+    --------------------------------------------------------------------------------------------------
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing the data to plot. Must inlcude 'Churn' feature and the numeric column <'xcol'>
+    xcol : str
+        Numerical column name to visualize.
+    xlabel : str, optional
+        Personalized label for X axis. If not specified, 'xcol' name will be used.
+    --------------------------------------------------------------------------------------------------
+    Saving
+    --------
+    Saves chart as PNG image in path './<path>/' under the name 'hist_Churn_<xcol>.png'
+    --------------------------------------------------------------------------------------------------
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object from Matplotlib with generated plots.
+    """
+
+    churn_colors = ['#4682b4', '#e9611d']
+
+    if xlabel is None:
+        xlabel = xcol
+        
+    fig, axes = plt.subplots(2,1, figsize=(8,6))
+
+    sns.histplot(data=df[df['Churn'] == 'No'], x=xcol, bins=30, color=churn_colors[0], kde=True, ax=axes[0])
+    axes[0].set_title("Churn = 'No'", fontsize=15, fontweight='bold', loc='left', color='teal')
+    axes[0].set_xlabel(xlabel, fontsize=13)
+    axes[0].set_ylabel('Frequency', fontsize=13)
+    
+    sns.histplot(data=df[df['Churn'] == 'Yes'], x=xcol, bins=30,  color=churn_colors[1], kde=True, ax=axes[1])
+    axes[1].set_title("Churn = 'Yes'", fontsize=15, fontweight='bold', loc='left', color='indianred')
+    axes[1].set_xlabel(xlabel, fontsize=13)
+    axes[1].set_ylabel('Frequency', fontsize=13)
+
+    # Adjust axes limits
+    ymax1 = axes[0].get_ylim()[1]
+    ymax2 = axes[1].get_ylim()[1]
+
+    ymax = max(ymax1, ymax2)
+
+    axes[0].set_ylim(0, ymax)
+    axes[1].set_ylim(0, ymax)
+
+    # Figure configurations 
+
+    sns.despine()
+    plt.suptitle(f'{xlabel} distribution by Churn', fontsize=18, y=1.01)
+    plt.subplots_adjust(hspace=2)
+    plt.tight_layout()
+    
+    fig.savefig(f'{path}/hist_Churn_{xcol}.png',
+                    transparent=False,
+                    dpi=300,
+                    bbox_inches='tight')
+    
+    plt.show()
+    return fig
